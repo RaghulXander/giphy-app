@@ -18,7 +18,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+	"baseUrl": "./src", // Setting the base directory for resolving non-relative module names
+	"types": ["cypress", "@testing-library/cypress"]
   },
   "include": [
     "src"
