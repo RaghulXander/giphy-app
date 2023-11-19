@@ -50,11 +50,11 @@ export default function Home(){
     const tempComponents = apiData?.data.map((img: TImageObject) => <ImageComponent image={img} key={img.id} />)
     if(tempComponents)
       setImageComponents(tempComponents);
-  }, [apiData, imageComponents.length])
+  },[apiData, imageComponents.length])
 
   // when search is clicked I just change the search url which in turn calls my Custom hook to change the data, simple chaining technique which is properly controlled
   function onSearchClick() {
-    setSearchURL(getSearchURL(searcInput))
+      setSearchURL(getSearchURL(searcInput))
   }
 
 
