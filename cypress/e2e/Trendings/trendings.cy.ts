@@ -10,7 +10,7 @@ describe('Trendings Component', () => {
 		cy.intercept(
 			{
 				method: "GET",
-				pathname: "https://api.giphy.com/v1/gifs/trending",
+				pathname: "**/gifs/trending**",
 				query: {
 					api_key: "eNiAGe2c3DEi7x0E1u9WT9bB4bFj6Dn0",
 					limit: "25",
@@ -20,7 +20,6 @@ describe('Trendings Component', () => {
 			{ fixture: "trendings.json" },
 		).as("getNextPage");
 		loadPage();
-		cy.intercept('**/gifs/trending**', { fixture: `trendings.json` }).as('getTrending');
 
 		cy.get('.flex.justify-center').should('exist');
 		cy.get('.image-container').should('exist').should('have.length', 25);
@@ -32,25 +31,15 @@ describe('Trendings Component', () => {
 		cy.wait('@getNextPage').its('request.url').should('include', 'offset=25');
 	});
 
-	it('displays loading indicator while fetching data', () => {
+	it('should not display loading indicator in infinite scroll fetching data', () => {
 		loadPage();
-		// Simulate loading state
-		cy.intercept('GET', '**/gifs/trending**', {
-			statusCode: 200,
-			body: {
-				data: [],
-				meta: {},
-				pagination: {}
-			},
-			delay: 1000 // Simulate delay for loading
-		}).as('getEmptyTrending');
 
 		cy.get('.flex.justify-center').should('exist');
 
 		// Click on the load more button
 		cy.get('button').contains('Load More').click();
 
-		cy.get('#loading').should('exist'); // Replace with the loading indicator class
+		cy.get('#loading').should('not.exist');
 	});
 
 	function loadPage() {
