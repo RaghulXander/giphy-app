@@ -38,35 +38,41 @@ export default function useApi(
 
     // Whenever the URL changes new data is fetched, we can check if the url is same as previosu then dont call the fetch else we can call the fetch
     useEffect(() => {
-        getData();
-    }, [url]);
+        let isMounted = true;
 
-    // Function to fetch the data and set the data based on infinite scroll
-    async function getData() {
-        const apiData1 = await axios.get(url);
-        if (infiniteLoad) {
-            setApiData((prev) => {
-                console.log(
-                    prev
-                        ? [...prev.data, ...apiData1.data.data]
-                        : [...apiData1.data.data],
-                );
-                return {
-                    data: prev
-                        ? [...prev.data, ...apiData1.data.data]
-                        : [...apiData1.data.data],
-                    meta: apiData1.data.meta,
-                    pagination: apiData1.data.pagination,
-                };
-            });
-        } else {
-            setLoading(true);
-            setApiData(apiData1.data);
-            setLoading(false);
-        }
-        setStatus(apiData1.status);
-    }
+        const fetchData = async () => {
+            if (!infiniteLoad) setLoading(true);
+            try {
+                const apiData1 = await axios.get(url);
+                if (isMounted) {
+                    setApiData((prev) => {
+                        if (prev && infiniteLoad) {
+                            return {
+                                data: [...prev.data, ...apiData1.data.data],
+                                meta: apiData1.data.meta,
+                                pagination: apiData1.data.pagination,
+                            };
+                        } else {
+                            setLoading(false);
+                            return apiData1.data;
+                        }
+                    });
+                    setStatus(apiData1.status);
+                }
+            } catch (error: any) {
+                const errorStatus = error.response?.status || null;
+                setStatus(errorStatus);
+                setApiData(null);
+                setLoading(false);
+            }
+        };
 
-    // returns the data and status back to UI
+        fetchData();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [url, setLoading, infiniteLoad]);
+
     return { apiData, status };
 }
